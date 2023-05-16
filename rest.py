@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # vim: ts=4 sts=4 sw=4 et
 
@@ -14,23 +14,23 @@ import hashlib
 try:
     import argparse # `easy_install argparse` or `pip install argparse`
 except:
-    print 'Cannot find library "argparse"!'
-    print 'Please do either:'
-    print '    sudo apt-get install python-argparse'
-    print '    sudo easy_install argparse'
-    print '    sudo pip install argparse'
-    print '    Go to https://pypi.python.org/pypi/argparse'
+    print('Cannot find library "argparse"!')
+    print('Please do either:')
+    print('    sudo apt-get install python-argparse')
+    print('    sudo easy_install argparse')
+    print('    sudo pip install argparse')
+    print('    Go to https://pypi.python.org/pypi/argparse')
     sys.exit(1)
 
 try:
     import requests
 except:
-    print 'Cannot find library "requests"!'
-    print 'Please do either:'
-    print '    sudo apt-get install python-requests'
-    print '    sudo easy_install requests'
-    print '    sudo pip install requests'
-    print '    Go to http://docs.python-requests.org/en/latest/user/install/#get-the-code'
+    print('Cannot find library "requests"!')
+    print('Please do either:')
+    print('    sudo apt-get install python-requests')
+    print('    sudo easy_install requests')
+    print('    sudo pip install requests')
+    print('    Go to http://docs.python-requests.org/en/latest/user/install/#get-the-code')
     sys.exit(1)
 
 try:
@@ -40,12 +40,12 @@ try:
     import pygments.formatters
     import pygments.styles
 except:
-    print 'Cannot find library "Pygments"!'
-    print 'Please do either:'
-    print '    sudo apt-get install python-pygments'
-    print '    sudo easy_install Pygments'
-    print '    sudo pip install pygments'
-    print '    Go to http://pygments.org/docs/installation/'
+    print('Cannot find library "Pygments"!')
+    print('Please do either:')
+    print('    sudo apt-get install python-pygments')
+    print('    sudo easy_install Pygments')
+    print('    sudo pip install pygments')
+    print('    Go to http://pygments.org/docs/installation/')
     sys.exit(1)
 
 
@@ -63,7 +63,7 @@ class Logger:
             return
         if len(format_args) > 0:
             msg = msg % format_args
-        print msg
+        print(msg)
     def error(self, msg, *format_args):
         self.log(Logger.ERROR, msg, *format_args)
     def warn(self, msg, *format_args):
@@ -186,8 +186,8 @@ Available styles are:\n  - ''' + '\n  - '.join(list(pygments.styles.get_all_styl
     if argv is None:
         argv = sys.argv[1:]
     argv_toParse = argv[:]
-    argv_toParse.extend(['--%s' % key.replace('_', '-') for key, value in kwargs.iteritems() if value == True])
-    argv_toParse.extend(['--%s=%s' % (key.replace('_', '-'), value) for key, value in kwargs.iteritems() if type(value) != bool])
+    argv_toParse.extend(['--%s' % key.replace('_', '-') for key, value in kwargs.items() if value == True])
+    argv_toParse.extend(['--%s=%s' % (key.replace('_', '-'), value) for key, value in kwargs.items() if type(value) != bool])
     args = parser.parse_args(getDefaultArgs() + argv_toParse)
     if args.profile is not None:
         # Reparse arguments by now adding the given profile's arguments
@@ -206,7 +206,21 @@ Available styles are:\n  - ''' + '\n  - '.join(list(pygments.styles.get_all_styl
         args.method = args.method.upper()
     if len(args.path) >= 1 and args.path[0] == '/':
         args.path = args.path[1:]
-    args.url = 'https://%s/%s' % ( args.host, args.path )
+    if args.host.startswith('http!s://'):
+        args.url = 'http://%s/%s' % ( args.host[len('http!s://'):], args.path )
+        args.urlForSigning = 'https://%s/%s' % ( args.host[len('http!s://'):], args.path )
+        args.headers.append('X-Forwarded-Proto:https')
+    elif args.host.startswith('http://'):
+        args.url = '%s/%s' % ( args.host, args.path )
+        args.urlForSigning = args.url
+    elif args.host.startswith('https://'):
+        args.signatureScheme = 'https'
+        args.url = '%s/%s' % ( args.host, args.path )
+        args.urlForSigning = args.url
+    else:
+        args.signatureScheme = 'https'
+        args.url = 'https://%s/%s' % ( args.host, args.path )
+        args.urlForSigning = args.url
     # Parse headers and params
     headers = {}
     params = {}
@@ -239,22 +253,22 @@ Available styles are:\n  - ''' + '\n  - '.join(list(pygments.styles.get_all_styl
     return args
 
 def sign(args):
-    params = '&'.join(sorted(['%s=%s' % (percent_encode(k), percent_encode(v)) for k,v in args.params.iteritems()]))
+    params = '&'.join(sorted(['%s=%s' % (percent_encode(k), percent_encode(v)) for k,v in args.params.items()]))
     body = ''
     fields = []
     fields.append(args.method.upper())
-    fields.append(args.url)
+    fields.append(args.urlForSigning)
     fields.append(params)
     fields.append(body)
     fields = '&'.join([percent_encode(field) for field in fields])
     args.logger.verbose('Signature before HMAC_SHA1: %s', fields)
-    return hmac.new(args.client_secret, fields, hashlib.sha1).digest()
+    return hmac.new(args.client_secret.encode(), fields.encode(), hashlib.sha1).digest()
 
 def percent_encode(s):
-    return urllib.quote(s, '~')
+    return urllib.parse.quote(s, '~')
 
 def formatRequest(args, request):
-    headers = ''.join(['%s: %s\n' % (h,v) for h,v in request.headers.iteritems()])
+    headers = ''.join(['%s: %s\n' % (h,v) for h,v in request.headers.items()])
     http = '%s %s HTTP/1.1\n%s' % (request.method, request.path_url, headers)
     try:
         lexer = HTTPLexer()
@@ -309,7 +323,7 @@ def query(argv = None, **kwargs):
     response = requests.Session().send(request, verify=args.ssl_verify)
     http, body = formatResponse(args, response)
     args.logger.info('%s', http)
-    print body.encode('utf-8')
+    print(body)
     return 0
 
 
