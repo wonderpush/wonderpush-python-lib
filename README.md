@@ -1,13 +1,10 @@
-WonderPush Python library
-=========================
+# WonderPush Python library
 
-Find the full WonderPush services documentation at:
-http://www.wonderpush.com/docs/.
+Find the full WonderPush services documentation at https://docs.wonderpush.com/docs/.
 
 
 
-Introduction
-------------
+## Introduction
 
 This project contains Python libraries for interacting with the WonderPush services.
 It helps you performing calls to the APIs. This contrasts with the SDKs, which are targetted at being integrated within your apps and handle interactions with the users.
@@ -16,24 +13,22 @@ It helps you performing calls to the APIs. This contrasts with the SDKs, which a
 ### APIs
 
 WonderPush comes as two APIs, one aimed at the user devices, and the other optional one aimed at your servers and tools.
-The former is simply called the REST API, whereas the latter is called the Management API.
+The former is simply called the SDK API, whereas the latter is called the Management API.
 
 This tool helps you performing calls to both.
 
 #### Management API Reference
 
-All references for the WonderPush Management API are available on the WonderPush documentation pages:
-https://wonderpush-management-api.readme.io/v1/docs.
+All references for the WonderPush Management API are available on the WonderPush documentation pages: https://docs.wonderpush.com/reference.
 
-#### API Reference
+#### SDK API Reference
 
-All references for the WonderPush API are available on the WonderPush documentation pages:
-http://www.wonderpush.com/docs/reference/api/v1.
-
+The SDK API is aimed to be used through the WonderPush SDKs.
+Look at the SDKs code to see how it is used in practice.
 
 
-Command-line tool
------------------
+
+## Command-line tool
 
 
 ### Dependencies
@@ -43,7 +38,7 @@ The command-line tool requires the following dependencies:
 * argparse
 
     To install it, try one of the following, depending on your system:
-    * Use python >= 2.7 or >= 3.2.
+    * Use python >= 3.2.
     * `sudo apt-get install python-argparse`
     * `sudo easy_install argparse`
     * `sudo pip install argparse`
@@ -104,9 +99,9 @@ optional arguments:
   --style STYLE         Pygments style to use while highlighting (default:
                         default)
   -c CLIENT_ID, --client-id CLIENT_ID
-                        Your client id
+                        Your Client ID
   -s CLIENT_SECRET, --client-secret CLIENT_SECRET
-                        Your client secret
+                        Your Client Secret
   -a ACCESS_TOKEN, --access-token ACCESS_TOKEN
                         The OAuth access token to use
   -i SID, --sid SID     The session id to use
@@ -155,36 +150,34 @@ Available styles are:
 Every call to the Management API needs the application access token, given using the `-a`/`--access-token`.
 You can find it in your dashboard under the _Settings / Configuration_ page, on the _Management API_ tab.
 
-Every call to the REST API needs both an access token and a client secret,
+Every call to the SDK API needs both an access token and a Client Secret,
 given using the `-a`/`--access-token` and `-s`/`--client-secret` arguments respectively.
 
 The only exception to the above is the call to get a client access token,
-which needs both the client id and client secret of your application,
+which needs both the Client ID and Client Secret of your application,
 given using the `-c`/`--client-id` and `-s`/`--client-secret` arguments respectively.
 
-Specifying an access token or a client id when it is not required by the REST end-point you're calling
-merely adds it as an extraneous argument.
+Specifying an access token or a Client ID when it is not required by the REST end-point you're calling merely adds it as an extraneous argument.
 Although harmless, this should be avoided.
 
-The client secret is required to calculate the signature of requests to the REST API,
-whereas the client id identifies the application for which an access token is to be created,
+The Client Secret is required to calculate the signature of requests to the SDK API,
+whereas the Client ID identifies the application for which an access token is to be created,
 and the access token in itself is attached to your application already.
 
 
 ### Access tokens
 
-The [Management REST API](http://www.wonderpush.com/docs/reference/management-api/v1) requires either `staff` or `application` access tokens.
-You can find them under your profile or your application's profile respectively.
-The `staff` access token is subject to the rights you have been granted, whereas the `application` access token holds all rights.
+The Management API requires `application` access tokens.
+You can find it in your project's [Settings / API credentials](https://dashboard.wonderpush.com/applications/-/api-credentials) page.
 
-The [REST API ](http://www.wonderpush.com/docs/reference/api/v1) requires `installation` access tokens,
-you can create one by calling the `POST /v1/authentication/accessTokens deviceId=YOUR_DEVICE_ID devicePlatform=PLATFORM_HANDLED_BY_YOUR_APP` end-point.
+The SDK API requires `installation` access tokens.
+You can create one as described below.
 
 
 ### Configuration
 
 As described in the above help message, you can create profiles or inject default arguments,
-to avoid mentioning client secrets and access tokens for each and every call.
+to avoid mentioning Client Secrets and access tokens for each and every call.
 
 Here is a good start for your `~/.wonderpush/rest.conf`:
 ```json
@@ -206,8 +199,7 @@ Here is a good start for your `~/.wonderpush/rest.conf`:
 }
 ```
 
-You can get your application client id and client secret [in your dashboard](https://dashboard.wonderpush.com/),
-under _Settings / Configuration_ in the left menu, listed in the block entitled _Application credentials_.
+SDK can get your Client ID and Client Secret in your project's [Settings / Platforms](https://dashboard.wonderpush.com/applications/-/platforms) page.
 
 
 ### [Management API] Send your first notification
@@ -225,7 +217,7 @@ You should get an answer like this one:
 And all your installations will receive a notification.
 
 
-### [REST API] Create your first installation access token
+### [SDK API] Create your first installation access token
 
 Simply call:
 ```shell
